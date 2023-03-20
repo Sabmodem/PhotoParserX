@@ -1,0 +1,10 @@
+aiofiles
+aiosqlite
+asgiref
+Flask
+httpx
+random-user-agent
+rq
+SQLAlchemy
+websockets
+hypercorn

@@ -1,0 +1,19 @@
+services:
+   searx:
+     image: searx/searx
+     ports:
+       - '8888:8080'
+   redis:
+     image: redislabs/redismod
+     ports:
+       - '6379:6379'
+   web:
+     build: .
+     ports:
+       - "8000:8000"
+       - "8765:8765"
+     volumes:
+       - .:/app
+     depends_on:
+       - redis
+       - searx
