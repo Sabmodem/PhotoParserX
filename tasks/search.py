@@ -10,13 +10,19 @@ import websockets
 from logger import logging, loggerInit
 from config import common as conf
 
+def errCount():
+  errCount = 0
+  while 1:
+    yield errCount
+    errCount = (errCount + 1) % 5
+
 async def notifyStatusChange(id):
   async with websockets.connect(conf.ws_url) as websocket:
     await websocket.send(json.dumps({ 'type': 'status', 'id' : id }))
 
 async def execSearchQuery(q, client, page, time, lang):
   images = []
-  errCcount = 0
+  errCountGen = errCount()
   while not images:
     try:
       response = await client.post(f'{conf.searx_url}/search', data={
@@ -30,8 +36,7 @@ async def execSearchQuery(q, client, page, time, lang):
       result = response.json()
       images = result['results']
     except Exception as e:
-      errCount += 1
-      if errCount == 4:
+      if next(errCountGen) == 4:
         logging.error(f'query "{q}, page "{page}" failed')
         return []
       logging.error(f'Запрос к searx провалился, errCount: {errCount}', exc_info=True)
@@ -48,7 +53,6 @@ async def main(query, pages, time, lang, timeout, sq_id):
       result = list(chain(*results_list))
       for i in result:
         session.add(db.SearchResult(id=str(uuid4()), search_query_id=sq_id, img_src=i['img_src'], thumb_src=i.get('thumbnail_src', None)))
-
       queryObjectCoroutine = await session.execute(db.select(db.SearchQuery).where(db.SearchQuery.id == sq_id))
       queryObject = queryObjectCoroutine.scalars().one()
       queryObject.status_id = sm.id.searched

@@ -1,6 +1,7 @@
 import os
 
 searx_url = 'http://searx:8080'
+# searx_url = 'http://localhost:8888'
 log_dir = os.path.join(os.getcwd(), 'log')
 img_dir = os.path.join(os.getcwd(), 'img')
 archives_dir = os.path.join(os.getcwd(), 'static', 'archives')
@@ -20,6 +21,7 @@ ws_url = f'ws://127.0.0.1:{ws_port}'
 
 # rq config
 redis_host = 'redis'
+# redis_host = 'localhost'
 redis_port = 6379
 search_task_timeout = 3600
 download_task_timeout = 3600
